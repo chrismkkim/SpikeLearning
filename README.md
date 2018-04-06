@@ -1,4 +1,4 @@
-Example code for the manuscript titled "Learning recurrent dynamics in spiking networks".
+Example code for the manuscript titled "Learning recurrent dynamics in spiking networks" by C. Kim and C. Chow.
 
 The code was written in Julia version 0.4.7.
 
