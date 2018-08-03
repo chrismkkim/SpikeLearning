@@ -22,16 +22,21 @@ if target_type == "periodic"
     return u_periodic
 end
 
-#---------- 2. nmf ----------#
-if target_type == "nmf"
-    u_nmf   = zeros(length(t),N);
-    include("genw_rowsum0.jl")
-    gnmf = 4;
-    M = gnmf*genw_rowsum0(N,0,1,p)/sqrt(N*p);
+#---------- 2. rate network ----------#
+if target_type == "ratemodel"
+    u_rm   = zeros(length(t),N);
+    g_rm = 5;
+    M = g_rm*genw_sparse(N,0,1,p)/sqrt(N*p);
     b_rm = 1/4;
 
+    # the mean of incoming synaptic connections to a neuron is zero
+    for i = 1:N
+      idx = abs(M[i,:]) .> 0;
+      M[i,idx] = M[i,idx] - sum(M[i,idx])/sum(idx);
+    end
+
     # random initial condition
-    u_nmf[1,:] = 0.2*rand(N)';
+    u_rm[1,:] = 0.2*rand(N)';
 
     function phi(x)
         x[x .< 0.] = 0.;
@@ -40,9 +45,9 @@ if target_type == "nmf"
     end
 
     for i = 1:length(t)-1
-        u_nmf[i+1,:] = (1-dt*b_rm)*u_nmf[i,:] + (dt*b_rm*M*phi(u_nmf[i,:]'))';
+        u_rm[i+1,:] = (1-dt*b_rm)*u_rm[i,:] + (dt*b_rm*M*phi(u_rm[i,:]'))';
     end
-    return u_nmf
+    return u_rm
 end
 
 #---------- 3. Ornstein-Ulenbeck ----------#
